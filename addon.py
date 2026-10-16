@@ -1181,7 +1181,7 @@ def _object_detail(obj):
 
 
 class BlenderMCPServer:
-    def __init__(self, host='localhost', port=9876):
+    def __init__(self, host=os.environ.get('BLENDER_MCP_HOST', '127.0.0.1'), port=int(os.environ.get('BLENDER_MCP_PORT', '9876'))):
         self.host = host
         self.port = port
         self.running = False
@@ -1262,8 +1262,21 @@ class BlenderMCPServer:
             "BLENDERMCP_HUNYUAN3D_API_URL",
         ) or "http://localhost:8081"
 
+    def serve_forever(self, poll=0.05):
+        """Headless mode (blender -b): run the bridge and drain commands on the main thread."""
+        self.allow_background = True
+        self.start()
+        try:
+            while self.running:
+                self._drain_command_queue()
+                time.sleep(poll)
+        except KeyboardInterrupt:
+            pass
+        finally:
+            self.stop()
+
     def start(self):
-        if bpy.app.background:
+        if bpy.app.background and not getattr(self, "allow_background", False):
             print("BlenderMCP: cannot start server in background mode (blender -b) - commands would never execute\n"
                   "BlenderMCP: run Blender with a GUI, or use a virtual display: xvfb-run -a blender")
             return
