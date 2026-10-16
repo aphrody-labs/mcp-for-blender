@@ -1,3 +1,15 @@
+# MCP for Blender (aphrody-labs fork)
+
+This fork keeps only the Blender add-on (`addon.py`, MIT). The Python MCP server is
+replaced by the Bun server of [bun-blender](https://github.com/aphrody-labs) (`packages/bun-blender/src/mcp.ts`),
+which talks to this add-on over its socket bridge (127.0.0.1:9876, `BLENDER_MCP_HOST` / `BLENDER_MCP_PORT`)
+and can start headless sessions itself (`blender -b`, `BlenderMCPServer().serve_forever()`).
+The aphrody Blender build ships the add-on as the `blender_mcp` core add-on, enabled by default.
+
+    claude mcp add --scope user blender -- bun <bun-os>/packages/bun-blender/src/mcp.ts
+
+Sections below describe the upstream Python server and its `uvx` installers, which this fork does not ship.
+
 <div align="center">
 
 # MCP for Blender
